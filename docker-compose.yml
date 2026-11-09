@@ -16,5 +16,18 @@ services:
       timeout: 3s
       retries: 10
 
+  api:
+    build: ./backend
+    restart: unless-stopped
+    environment:
+      ConnectionStrings__Default: "Host=db;Port=5432;Database=${POSTGRES_DB:-admission};Username=${POSTGRES_USER:-admission};Password=${POSTGRES_PASSWORD:-admission};Maximum Pool Size=20;Gss Encryption Mode=Disable"
+      HOLD_DURATION_SECONDS: ${HOLD_DURATION_SECONDS:-600}
+      EXPIRY_SWEEP_INTERVAL_SECONDS: ${EXPIRY_SWEEP_INTERVAL_SECONDS:-2}
+    ports:
+      - "${API_PORT:-8080}:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+
 volumes:
   pgdata:
