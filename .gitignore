@@ -1,0 +1,28 @@
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# .NET
+bin/
+obj/
+*.user
+*.suo
+TestResults/
+
+# Node / Vite
+node_modules/
+dist/
+coverage/
+*.log
+npm-debug.log*
+
+# Local documents
+*.pdf
