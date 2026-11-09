@@ -20,7 +20,16 @@ if (holdDurationSeconds <= 0)
 {
     throw new InvalidOperationException("HOLD_DURATION_SECONDS must be a positive number of seconds.");
 }
-builder.Services.Configure<AdmissionOptions>(o => o.HoldDurationSeconds = holdDurationSeconds);
+var sweepIntervalSeconds = builder.Configuration.GetValue("EXPIRY_SWEEP_INTERVAL_SECONDS", AdmissionOptions.DefaultExpirySweepIntervalSeconds);
+if (sweepIntervalSeconds <= 0)
+{
+    throw new InvalidOperationException("EXPIRY_SWEEP_INTERVAL_SECONDS must be a positive number of seconds.");
+}
+builder.Services.Configure<AdmissionOptions>(o =>
+{
+    o.HoldDurationSeconds = holdDurationSeconds;
+    o.ExpirySweepIntervalSeconds = sweepIntervalSeconds;
+});
 
 builder.Services.AddSingleton(TimeProvider.System);
 
@@ -31,6 +40,7 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddHealthChecks();
 builder.Services.AddScoped<HoldService>();
+builder.Services.AddHostedService<HoldExpiryService>();
 
 // Malformed requests (bad JSON, wrong field types) raise an exception so that
 // ApiExceptionHandler can answer them with the same error body as everything else.

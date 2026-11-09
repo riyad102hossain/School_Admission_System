@@ -14,5 +14,6 @@ public static class ErrorCodes
     public const string HoldExpired = "HOLD_EXPIRED";
     public const string HoldCancelled = "HOLD_CANCELLED";
     public const string AlreadyConfirmed = "ALREADY_CONFIRMED";
+    public const string ServiceBusy = "SERVICE_BUSY";
     public const string InternalError = "INTERNAL_ERROR";
 }
