@@ -29,5 +29,16 @@ services:
       db:
         condition: service_healthy
 
+  frontend:
+    build: ./frontend
+    restart: unless-stopped
+    environment:
+      # The browser calls the API directly, so this must be reachable from the user's machine.
+      API_URL: ${API_URL:-http://localhost:${API_PORT:-8080}}
+    ports:
+      - "${FRONTEND_PORT:-3000}:80"
+    depends_on:
+      - api
+
 volumes:
   pgdata:
