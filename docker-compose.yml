@@ -16,7 +16,7 @@ services:
       timeout: 3s
       retries: 10
 
-  api:
+  api: &api
     build: ./backend
     restart: unless-stopped
     environment:
@@ -28,6 +28,14 @@ services:
     depends_on:
       db:
         condition: service_healthy
+
+  # Optional second API process on the same database, to show that seat limits hold
+  # across processes. Start with: docker compose --profile two-apis up
+  api-2:
+    <<: *api
+    profiles: ["two-apis"]
+    ports:
+      - "${API_2_PORT:-8081}:8080"
 
   frontend:
     build: ./frontend
