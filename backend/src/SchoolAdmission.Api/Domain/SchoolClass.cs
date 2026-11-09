@@ -2,7 +2,7 @@ namespace SchoolAdmission.Api.Domain;
 
 /// <summary>
 /// A single class/shift with a fixed number of seats, e.g. "Class 6 - Morning Shift".
-/// Seat counters are stored on the row and only changed through atomic SQL updates,
+/// Seat counters are stored on the row and only changed while the row is locked,
 /// so held + confirmed can never exceed TotalSeats (also enforced by a check constraint).
 /// </summary>
 public class SchoolClass

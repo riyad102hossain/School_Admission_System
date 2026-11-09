@@ -1,6 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using SchoolAdmission.Api.Data;
+using Microsoft.AspNetCore.WebUtilities;
+using SchoolAdmission.Api.Endpoints;
+using SchoolAdmission.Api.Errors;
 using SchoolAdmission.Api.Options;
+using SchoolAdmission.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,6 +30,13 @@ builder.Services.AddCors(options =>
     options.AddDefaultPolicy(policy => policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
 
 builder.Services.AddHealthChecks();
+builder.Services.AddScoped<HoldService>();
+
+// Malformed requests (bad JSON, wrong field types) raise an exception so that
+// ApiExceptionHandler can answer them with the same error body as everything else.
+builder.Services.Configure<RouteHandlerOptions>(o => o.ThrowOnBadRequest = true);
+builder.Services.AddExceptionHandler<ApiExceptionHandler>();
+builder.Services.AddProblemDetails();
 
 var app = builder.Build();
 
@@ -36,8 +47,23 @@ await using (var scope = app.Services.CreateAsyncScope())
 }
 
 app.UseCors();
+app.UseExceptionHandler();
+app.UseStatusCodePages(async context =>
+{
+    var response = context.HttpContext.Response;
+    var body = response.StatusCode switch
+    {
+        StatusCodes.Status404NotFound => new ErrorResponse(ErrorCodes.NotFound, "The requested resource was not found."),
+        StatusCodes.Status415UnsupportedMediaType => new ErrorResponse(ErrorCodes.BadRequest, "Request body must be JSON (Content-Type: application/json)."),
+        StatusCodes.Status405MethodNotAllowed => new ErrorResponse(ErrorCodes.BadRequest, "This HTTP method is not allowed here."),
+        _ => new ErrorResponse(ErrorCodes.BadRequest, ReasonPhrases.GetReasonPhrase(response.StatusCode))
+    };
+    await response.WriteAsJsonAsync(body);
+});
 
 app.MapHealthChecks("/health");
+app.MapClassEndpoints();
+app.MapHoldEndpoints();
 
 app.Run();
 
