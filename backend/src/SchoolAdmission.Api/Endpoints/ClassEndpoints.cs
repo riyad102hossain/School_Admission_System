@@ -13,9 +13,19 @@ public static class ClassEndpoints
 
     public static IEndpointRouteBuilder MapClassEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapPost("/classes", CreateClass);
-        app.MapGet("/classes", GetClasses);
-        app.MapGet("/classes/{classId:guid}", GetClass);
+        var classes = app.MapGroup("/classes").WithTags("Classes");
+
+        classes.MapPost("", CreateClass)
+            .WithSummary("Create a class")
+            .Produces<ErrorResponse>(StatusCodes.Status400BadRequest);
+
+        classes.MapGet("", GetClasses)
+            .WithSummary("List classes with held, confirmed and available seats");
+
+        classes.MapGet("/{classId:guid}", GetClass)
+            .WithSummary("Get one class")
+            .Produces<ErrorResponse>(StatusCodes.Status404NotFound);
+
         return app;
     }
 

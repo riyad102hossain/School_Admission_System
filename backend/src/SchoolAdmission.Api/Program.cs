@@ -39,6 +39,7 @@ builder.Services.AddCors(options =>
     options.AddDefaultPolicy(policy => policy.AllowAnyOrigin().AllowAnyHeader().AllowAnyMethod()));
 
 builder.Services.AddHealthChecks();
+builder.Services.AddOpenApi();
 builder.Services.AddScoped<HoldService>();
 builder.Services.AddHostedService<HoldExpiryService>();
 
@@ -71,7 +72,16 @@ app.UseStatusCodePages(async context =>
     await response.WriteAsJsonAsync(body);
 });
 
-app.MapHealthChecks("/health");
+// API documentation: spec at /openapi/v1.json, interactive page at /swagger.
+// Kept on in every environment so reviewers can try the API without the frontend.
+app.MapOpenApi();
+app.UseSwaggerUI(options =>
+{
+    options.SwaggerEndpoint("/openapi/v1.json", "School Admission API");
+    options.DocumentTitle = "School Admission API";
+});
+
+app.MapHealthChecks("/health").ExcludeFromDescription();
 app.MapClassEndpoints();
 app.MapHoldEndpoints();
 
