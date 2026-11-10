@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.WebUtilities;
 using SchoolAdmission.Api.Endpoints;
 using SchoolAdmission.Api.Errors;
 using SchoolAdmission.Api.Options;
+using SchoolAdmission.Api.Serialization;
 using SchoolAdmission.Api.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -32,6 +33,9 @@ builder.Services.Configure<AdmissionOptions>(o =>
 });
 
 builder.Services.AddSingleton(TimeProvider.System);
+
+// Timestamps go out as "2026-11-01T04:10:00Z", matching the API contract.
+builder.Services.ConfigureHttpJsonOptions(o => o.SerializerOptions.Converters.Add(new UtcDateTimeOffsetConverter()));
 
 // The API is public and uses no cookies, so any origin may call it.
 // The frontend runs on a different port, which makes CORS necessary.

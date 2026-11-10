@@ -29,6 +29,22 @@ public class HoldRulesTests(DatabaseFixture fixture)
     }
 
     [Fact]
+    public async Task Timestamps_are_utc_with_a_trailing_z_like_the_contract_example()
+    {
+        var schoolClass = await _client.CreateClassAsync(totalSeats: 5);
+        var request = new HttpRequestMessage(HttpMethod.Post, $"/classes/{schoolClass.Id}/holds");
+        request.Headers.Add("X-Student-Id", ApiClientExtensions.NewStudentId());
+
+        var response = await _client.SendAsync(request);
+        var json = await response.Content.ReadFromJsonAsync<System.Text.Json.JsonElement>();
+        var expiresAt = json.GetProperty("expiresAt").GetString()!;
+
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        Assert.EndsWith("Z", expiresAt);
+        Assert.DoesNotContain("+", expiresAt);
+    }
+
+    [Fact]
     public async Task Confirming_twice_is_idempotent()
     {
         var schoolClass = await _client.CreateClassAsync(totalSeats: 5);
