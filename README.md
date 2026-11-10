@@ -109,7 +109,7 @@ The automated test `Two_api_instances_sharing_the_database_never_overbook_the_cl
 
 ## Tests
 
-**Backend** (37 tests: xUnit, `WebApplicationFactory`, real PostgreSQL via Testcontainers). Docker must be running; the tests start and remove their own database container.
+**Backend** (38 tests: xUnit, `WebApplicationFactory`, real PostgreSQL via Testcontainers). Docker must be running; the tests start and remove their own database container.
 
 ```bash
 cd backend
@@ -120,10 +120,10 @@ The tests include:
 
 - **concurrency:** 200 simultaneous holds on 10 seats, with one and with two API instances; duplicate holds; concurrent confirms;
 - **expiry:** on access and from the background job, using a controllable clock;
-- **hold rules:** cancel and re-apply, ownership (`403`), `/me/holds`;
+- **hold rules:** cancel and re-apply, ownership (`403`), `/me/holds`, timestamps in the contract's `...Z` format;
 - **validation:** invalid input of many kinds.
 
-**Frontend** (17 tests: Vitest and Testing Library)
+**Frontend** (19 tests: Vitest and Testing Library)
 
 ```bash
 cd frontend
@@ -137,7 +137,8 @@ The tests include:
 - paying;
 - friendly error messages;
 - student ID validation and remembering it across reloads;
-- class list states.
+- class list states;
+- an unexpected UI error showing a message instead of a blank page.
 
 ## Local development without Docker
 

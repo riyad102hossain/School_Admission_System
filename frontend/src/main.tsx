@@ -2,15 +2,18 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import App from './App'
+import { ErrorBoundary } from './components/ErrorBoundary'
 import { StudentProvider } from './student/StudentProvider'
 import './index.css'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <BrowserRouter>
-      <StudentProvider>
-        <App />
-      </StudentProvider>
-    </BrowserRouter>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <StudentProvider>
+          <App />
+        </StudentProvider>
+      </BrowserRouter>
+    </ErrorBoundary>
   </StrictMode>,
 )

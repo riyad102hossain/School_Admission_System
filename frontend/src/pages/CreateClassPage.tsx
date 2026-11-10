@@ -53,6 +53,7 @@ export function CreateClassPage() {
 
   return (
     <section className="narrow">
+      <p className="eyebrow">স্কুল অ্যাডমিন</p>
       <h1>নতুন ক্লাস তৈরি</h1>
       <p className="muted">ক্লাস ও শিফটের নাম এবং মোট কতটি সিট আছে তা লিখুন।</p>
 

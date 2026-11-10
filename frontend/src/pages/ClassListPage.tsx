@@ -4,6 +4,7 @@ import { api } from '../api/client'
 import { friendlyError } from '../api/messages'
 import type { MyHold, SchoolClass } from '../api/types'
 import { Alert } from '../components/Alert'
+import { Icon } from '../components/Icon'
 import { SeatBar } from '../components/SeatBar'
 import { POLL_INTERVAL_MS } from '../config'
 import { useNow } from '../hooks/useNow'
@@ -48,17 +49,78 @@ export function ClassListPage() {
     }
   }
 
+  const summary = classes.data?.length
+    ? {
+        classCount: classes.data.length,
+        totalSeats: classes.data.reduce((sum, c) => sum + c.totalSeats, 0),
+        confirmedSeats: classes.data.reduce((sum, c) => sum + c.confirmedSeats, 0),
+        availableSeats: classes.data.reduce((sum, c) => sum + c.availableSeats, 0),
+      }
+    : null
+
   return (
     <section>
       <div className="page-header">
         <div>
+          <p className="eyebrow">ভর্তি ডেস্ক</p>
           <h1>ক্লাস তালিকা</h1>
           <p className="muted">সিটের সংখ্যা প্রতি কয়েক সেকেন্ডে নিজে থেকেই হালনাগাদ হয়।</p>
         </div>
-        <Link to="/classes/new" className="button button-secondary">
-          + নতুন ক্লাস
+        <Link to="/classes/new" className="button button-secondary admin-action">
+          + নতুন ক্লাস <span className="admin-tag">অ্যাডমিন</span>
         </Link>
       </div>
+
+      {summary && (
+        <dl className="stat-row">
+          <div className="stat-card stat-indigo">
+            <span className="stat-icon">
+              <Icon size={18}>
+                <path d="M2 4h6a4 4 0 0 1 4 4v13a3 3 0 0 0-3-3H2z" />
+                <path d="M22 4h-6a4 4 0 0 0-4 4v13a3 3 0 0 1 3-3h7z" />
+              </Icon>
+            </span>
+            <dt>মোট ক্লাস</dt>
+            <dd>{toBengaliNumber(summary.classCount)}</dd>
+            <p>ভর্তির জন্য খোলা</p>
+          </div>
+          <div className="stat-card stat-blue">
+            <span className="stat-icon">
+              <Icon size={18}>
+                <rect x="3" y="3" width="7" height="7" rx="1" />
+                <rect x="14" y="3" width="7" height="7" rx="1" />
+                <rect x="3" y="14" width="7" height="7" rx="1" />
+                <rect x="14" y="14" width="7" height="7" rx="1" />
+              </Icon>
+            </span>
+            <dt>মোট সিট</dt>
+            <dd>{toBengaliNumber(summary.totalSeats)}</dd>
+            <p>সব ক্লাস মিলিয়ে</p>
+          </div>
+          <div className="stat-card stat-green">
+            <span className="stat-icon">
+              <Icon size={18}>
+                <circle cx="12" cy="12" r="9" />
+                <path d="m8 12 3 3 5-6" />
+              </Icon>
+            </span>
+            <dt>নিশ্চিত ভর্তি</dt>
+            <dd>{toBengaliNumber(summary.confirmedSeats)}</dd>
+            <p>ফি দেওয়া হয়েছে</p>
+          </div>
+          <div className="stat-card stat-amber">
+            <span className="stat-icon">
+              <Icon size={18}>
+                <circle cx="12" cy="8" r="4" />
+                <path d="M4 21a8 8 0 0 1 16 0" />
+              </Icon>
+            </span>
+            <dt>খালি সিট</dt>
+            <dd>{toBengaliNumber(summary.availableSeats)}</dd>
+            <p>এখনই আবেদন করা যাবে</p>
+          </div>
+        </dl>
+      )}
 
       {!studentId && <Alert kind="info">আবেদন করতে উপরে শিক্ষার্থীর ১৭ অঙ্কের জন্ম নিবন্ধন নম্বর দিন।</Alert>}
       {applyError && <Alert onClose={() => setApplyError(null)}>{applyError}</Alert>}
@@ -85,7 +147,7 @@ export function ClassListPage() {
           const activeHold = activeHoldByClass.get(schoolClass.id)
           const full = schoolClass.availableSeats <= 0
           return (
-            <li key={schoolClass.id} className="card">
+            <li key={schoolClass.id} className={full ? 'card class-card class-card-full' : 'card class-card'}>
               <h2 className="card-title">{schoolClass.name}</h2>
               <SeatBar schoolClass={schoolClass} />
               <dl className="seat-stats">
